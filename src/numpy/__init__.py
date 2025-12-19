@@ -11,10 +11,6 @@ import random as _random
 from typing import Iterable, List
 
 
-class uint8(int):
-    pass
-
-
 class Array(list):
     def __add__(self, other):
         if isinstance(other, Array):
@@ -41,28 +37,6 @@ class Array(list):
     def copy(self):
         return Array(self)
 
-    @property
-    def shape(self):
-        if not self:
-            return (0,)
-        if isinstance(self[0], Array):
-            return (len(self),) + self[0].shape
-        return (len(self),)
-
-    def min(self, axis=None):
-        if axis is None:
-            return min(self)
-        if axis in (0, -1, 1):
-            return Array(min(col[i] for col in self) for i in range(len(self[0])))
-        raise NotImplementedError
-
-    def max(self, axis=None):
-        if axis is None:
-            return max(self)
-        if axis in (0, -1, 1):
-            return Array(max(col[i] for col in self) for i in range(len(self[0])))
-        raise NotImplementedError
-
 
 def array(seq, dtype=None):
     return Array(seq)
@@ -72,17 +46,6 @@ def zeros(shape, dtype=float):
     if isinstance(shape, int):
         return Array([0.0 for _ in range(shape)])
     return Array([Array([0.0 for _ in range(shape[1])]) for _ in range(shape[0])])
-
-
-def full(shape, fill_value, dtype=None):
-    def _fill(subshape):
-        if isinstance(subshape, int):
-            return Array(fill_value for _ in range(subshape))
-        if len(subshape) == 0:
-            return fill_value
-        return Array(_fill(subshape[1:]) for _ in range(subshape[0]))
-
-    return _fill(shape if isinstance(shape, tuple) else (shape,))
 
 
 def zeros_like(seq):
@@ -102,20 +65,6 @@ def diff(arrays: Array, axis: int = 0):
     for i in range(1, len(arrays)):
         result.append(Array(a - b for a, b in zip(arrays[i], arrays[i - 1])))
     return Array(result)
-
-
-def maximum(a, b):
-    if isinstance(a, Array):
-        return Array(max(x, b[i] if isinstance(b, Array) else b) for i, x in enumerate(a))
-    if isinstance(b, Array):
-        return Array(max(a, y) for y in b)
-    return max(a, b)
-
-
-def clip(a, min_value, max_value):
-    if isinstance(a, Array):
-        return Array(min(max(x, min_value), max_value) for x in a)
-    return min(max(a, min_value), max_value)
 
 
 def exp(x):
