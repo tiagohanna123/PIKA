@@ -1,0 +1,27 @@
+[project]
+name = "pika-system"
+version = "0.1.0"
+description = "Extensible framework for complex system modeling"
+authors = [{name = "OpenAI Agent"}]
+readme = "README.md"
+requires-python = ">=3.11"
+keywords = ["systems", "energy", "flow", "process"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "numpy",
+    "matplotlib",
+]
+
+[project.urls]
+Homepage = "https://example.com"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
