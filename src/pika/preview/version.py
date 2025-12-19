@@ -1,3 +1,4 @@
+"""Deterministic version preview for quick comparisons."""
 """Generate human-readable previews for the current system version.
 
 The previews are intended to be lightweight diagnostics: they run a
@@ -13,6 +14,13 @@ import argparse
 from dataclasses import dataclass
 from textwrap import dedent
 from typing import Iterable, Sequence, Tuple
+import numpy as np
+
+from pika.identity import identity
+from pika.core import System
+from pika.process import GoalAttraction, Viscosity, Process
+from pika.flow import Flow
+from pika.integrator import Integrator
 
 from pika.config.system import system_identity
 from pika.core.point import Point
@@ -98,6 +106,31 @@ def generate_version_preview(
     dt: float = 0.1,
     steps: int = 5,
 ) -> VersionPreview:
+    preview_processes = list(
+        processes
+        if processes is not None
+        else (
+            GoalAttraction(k=0.2, goal=np.array([0.5, 0.0])),
+            Viscosity(mu=0.05),
+        )
+    )
+
+    system = System(dimension=2)
+    for coord in coordinates:
+        system.add_point(position=np.array(coord), velocity=np.zeros(2))
+
+    flow = Flow(system=system, processes=list(preview_processes))
+    integrator = Integrator(flow=flow, dt=dt, steps=steps)
+
+    frames = []
+    for step_index in range(1, steps + 1):
+        signatures = tuple(
+            process.compute(system, point, 0.0).energy_rate
+            for point in system.points
+            for process in preview_processes
+        )
+        integrator.flow.step(dt)
+        energies = tuple(point.total_energy() for point in system.points)
     """Run a small deterministic integration to preview the system state.
 
     Parameters
@@ -142,6 +175,9 @@ def generate_version_preview(
         )
 
     return VersionPreview(
+        system_id=identity.id,
+        system_version=identity.version,
+        description=identity.description,
         system_id=system_identity.id,
         system_version=system_identity.version,
         description=system_identity.description,
@@ -152,6 +188,7 @@ def generate_version_preview(
 
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
+        description="Render a deterministic preview of the configured system.",
         description="Render a deterministic preview of the configured PIKA system.",
     )
     parser.add_argument("--dt", type=float, default=0.1, help="Time step for integration.")
@@ -159,6 +196,20 @@ def _build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def main(argv=None) -> None:
+    parser = _build_parser()
+    parser.add_argument("--coordinates", nargs="*", type=float, help="Flat list of coordinates (x y x y ...)")
+    args = parser.parse_args(argv)
+    if args.coordinates:
+        coords = list(zip(args.coordinates[::2], args.coordinates[1::2]))
+    else:
+        coords = ((0.0, 0.0), (1.0, 0.0))
+    preview = generate_version_preview(coordinates=coords, dt=args.dt, steps=args.steps)
+    print(render_preview(preview))
+
+
+if __name__ == "__main__":
+    main()
 def main(argv: Sequence[str] | None = None) -> int:
     parser = _build_parser()
     args = parser.parse_args(argv)
