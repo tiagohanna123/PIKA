@@ -34,6 +34,16 @@ PYTHONPATH=src python -m pika.preview.geo --dt 0.02 --steps 200 --save frames/fi
 ```
 Generates a trajectory plot with scatter/quiver overlays. The file is created under `frames/` by default.
 
+## Interactive portal (web)
+Run the portal locally and interact with simulations in the browser:
+
+```bash
+pip install -e .
+pika-portal
+```
+
+Then open `http://127.0.0.1:8050/`.
+
 ## Deterministic version preview
 ```bash
 PYTHONPATH=src python -m pika.preview.version --dt 0.05 --steps 5
