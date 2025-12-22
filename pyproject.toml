@@ -14,7 +14,13 @@ classifiers = [
 dependencies = [
     "numpy",
     "matplotlib",
+    "dash",
+    "plotly",
+    "pandas",
 ]
+
+[project.scripts]
+pika-portal = "pika.portal.app:main"
 
 [project.urls]
 Homepage = "https://example.com"

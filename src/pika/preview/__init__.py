@@ -1,5 +1,10 @@
-"""Convenience utilities to inspect system evolution without full runs."""
+"""Preview utilities.
 
-from .version import VersionPreview, PreviewFrame, generate_version_preview, render_preview
+This package hosts lightweight diagnostics (CLI helpers, plots, etc.).
 
-__all__ = ["VersionPreview", "PreviewFrame", "generate_version_preview", "render_preview"]
+Keep this module import-side-effect-free: consumers should import the
+specific preview they need (e.g. :mod:`pika.preview.info`) rather than
+loading everything at package import time.
+"""
+
+__all__: list[str] = []

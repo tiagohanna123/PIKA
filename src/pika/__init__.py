@@ -1,28 +1,30 @@
-"""Pika modeling framework with configurable system identity."""
-from .identity import identity, SystemIdentity
-from .config import SimulationConfig
+"""PIKA system modeling framework.
+
+This package includes:
+- A legacy simulation engine (System/Flow/Integrator, etc.) used by tests and demos.
+- A newer modular layer under subpackages (core/, flow/, integrator/, process/).
+- A web portal under :mod:`pika.portal`.
+
+System identity for the modular layer is configured via :mod:`pika.config.system`.
+"""
+
+from .config import SimulationConfig, resolve_seed
+from .config.system import SystemIdentity, system_identity
 from .core import Point, System
-from .process import Process
 from .flow import Flow
+from .identity import identity
 from .integrator import Integrator
+from .process import Process
 
 __all__ = [
-    "identity",
-    "SystemIdentity",
     "SimulationConfig",
+    "resolve_seed",
+    "SystemIdentity",
+    "system_identity",
+    "identity",
     "Point",
     "System",
     "Process",
     "Flow",
     "Integrator",
 ]
-"""Pika system modeling framework.
-
-This package provides a modular foundation for simulating energy-driven
-systems. The naming of the system is configurable via
-:mod:`pika.config.system` to avoid hardcoding identities.
-"""
-
-from .config.system import SystemIdentity, system_identity
-
-__all__ = ["SystemIdentity", "system_identity"]

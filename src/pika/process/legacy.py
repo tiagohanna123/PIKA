@@ -1,12 +1,14 @@
-"""Process definitions and contributions."""
+"""Legacy process definitions and contributions."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Callable, Iterable, List
-import numpy as np
+from typing import Callable, List
 import math
 
-from .core import Point, System
+import numpy as np
+
+from pika.core import Point, System
 
 
 @dataclass
@@ -18,7 +20,7 @@ class ProcessContribution:
 
 
 class Process:
-    """Base class for local processes."""
+    """Base class for local processes (legacy engine)."""
 
     label: str = "process"
 
@@ -146,17 +148,12 @@ class EntropyForce(Process):
 
     def compute(self, system: System, point: Point, t: float) -> ProcessContribution:
         accel = self.magnitude * self.direction
-        # Entropy is modeled as a continuous "push" that still dissipates usable energy.
         energy_rate = -abs(float(np.dot(accel, point.velocity)))
         return ProcessContribution(point.id, energy_rate, accel, self.label)
 
 
 class SyntropyWaveRegulator(Process):
-    """Organizing wave vectors modulated to push X -> 0.
-
-    The wave field is spatially structured, while its amplitude is a control
-    signal derived from the monitored X value.
-    """
+    """Organizing wave vectors modulated to push X -> 0."""
 
     def __init__(self, gain: float, k: float, omega: float, monitor: Callable[[], float]):
         self.gain = float(gain)
@@ -167,7 +164,6 @@ class SyntropyWaveRegulator(Process):
 
     def compute(self, system: System, point: Point, t: float) -> ProcessContribution:
         x_value = float(self.monitor())
-        # If X < 0 (entropy dominates), inject organizing vectors; if X > 0, counteract.
         amp = -self.gain * math.tanh(x_value)
 
         x0 = float(point.position[0])
